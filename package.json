@@ -1,0 +1,23 @@
+{
+  "name": "idea-player",
+  "version": "1.0.0",
+  "description": "A NodeJS Application to list down your ideas",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/pragmaticpi/idea-player.git"
+  },
+  "author": "Piyush Kumar",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/pragmaticpi/idea-player/issues"
+  },
+  "homepage": "https://github.com/pragmaticpi/idea-player#readme",
+  "dependencies": {
+    "express": "^4.16.3",
+    "express-handlebars": "^3.0.0"
+  }
+}
