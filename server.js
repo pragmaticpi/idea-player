@@ -6,12 +6,14 @@ const bodyParser = require('body-parser');
 const methodOverride = require('method-override');
 const flash = require('connect-flash');
 const session = require('express-session');
+const passport = require('passport');
 
 const app = express();
 
 const ideaRoutes = require('./routes/ideas');
 const userRoutes = require('./routes/users');
 
+require('./middlewares/passport')(passport);
 // Use native promise library instead of mongoose mpromise library
 mongoose.Promise = global.Promise;
 
