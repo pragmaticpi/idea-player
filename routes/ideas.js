@@ -2,14 +2,15 @@ const express = require('express');
 const mongoose = require('mongoose');
 
 const router = express.Router();
+const { ensureAuthenticated } = require('../helpers/auth');
 
 // Load Idea Model
 require('../models/Idea');
 const ideaSchema = mongoose.model('ideas');
 
-router.get('/', (req, res) => {
-  ideaSchema.find({})
-    .sort({date:'desc'})
+router.get('/', ensureAuthenticated, (req, res) => {
+  ideaSchema.find({ user: req.user.id, })
+    .sort({ date: 'desc' })
     .then(ideas => {
       res.render('ideas/index', {
         ideas,
@@ -17,22 +18,27 @@ router.get('/', (req, res) => {
     });
 });
 
-router.get('/edit/:id', (req, res) => {
+router.get('/edit/:id', ensureAuthenticated, (req, res) => {
   ideaSchema.findOne({
     _id: req.params.id,
   })
-  .then(idea => {
-    res.render('ideas/edit', {
-      idea,
+    .then(idea => {
+      if (idea.user != req.user.id) {
+        req.flash('error_msg', 'Not Authorized');
+        res.redirect('/ideas');
+      } else {
+        res.render('ideas/edit', {
+          idea,
+        });
+      }
     });
-  });
 });
 
-router.get('/add', (req, res) => {
+router.get('/add', ensureAuthenticated, (req, res) => {
   res.render('ideas/add');
 });
 
-router.post('/', (req, res) => {
+router.post('/', ensureAuthenticated, (req, res) => {
 
   // Manual server-side validation
   let errors = [];
@@ -54,6 +60,7 @@ router.post('/', (req, res) => {
     const newIdea = {
       title: req.body.title,
       details: req.body.details,
+      user: req.user.id,
     };
 
     new ideaSchema(newIdea)
@@ -65,30 +72,30 @@ router.post('/', (req, res) => {
   }
 });
 
-router.put('/:id', (req, res) => {
+router.put('/:id', ensureAuthenticated, (req, res) => {
   ideaSchema.findOne({
     _id: req.params.id,
   })
-  .then(idea => {
-    idea.title = req.body.title;
-    idea.details = req.body.details;
+    .then(idea => {
+      idea.title = req.body.title;
+      idea.details = req.body.details;
 
-    idea.save()
-      .then(idea => {
-        req.flash('success_msg', 'Idea Updated');
-        res.redirect('/ideas');
-      });
-  });
+      idea.save()
+        .then(idea => {
+          req.flash('success_msg', 'Idea Updated');
+          res.redirect('/ideas');
+        });
+    });
 });
 
-router.delete('/:id', (req, res) => {
+router.delete('/:id', ensureAuthenticated, (req, res) => {
   ideaSchema.deleteOne({
     _id: req.params.id,
   })
-  .then(() => {
-    req.flash('success_msg', 'Idea Removed');
-    res.redirect('/ideas');
-  });
+    .then(() => {
+      req.flash('success_msg', 'Idea Removed');
+      res.redirect('/ideas');
+    });
 });
 
 module.exports = router;

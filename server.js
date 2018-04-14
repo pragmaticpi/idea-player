@@ -39,6 +39,9 @@ app.use(session({
   saveUninitialized: true,
 }));
 
+app.use(passport.initialize());
+app.use(passport.session());
+
 app.use(flash());
 
 app.use((req, res, next) => {
@@ -46,6 +49,8 @@ app.use((req, res, next) => {
   res.locals.error_msg = req.flash('error_msg');
   res.locals.error = req.flash('error');
 
+  // When Logged in, user object is available to request
+  res.locals.user = req.user || null;
   next();
 })
 
